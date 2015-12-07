@@ -1,0 +1,44 @@
+########## OS ##########
+FROM centos:centos7
+
+RUN yum update -y && yum clean all
+RUN yum reinstall -y glibc-common
+########## OS ##########
+
+
+########## ENV ##########
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+########## REQ ##########
+RUN yum install -y epel-release
+RUN yum -y update && yum -y upgrade
+
+RUN yum install -y gcc gcc-c++ glibc-devel make ncurses-devel openssl-devel autoconf java-1.8.0-openjdk-devel git
+RUN yum install -y wxBase.x86_64
+RUN yum -y install wget
+
+WORKDIR /root
+RUN wget http://packages.erlang-solutions.com/erlang-solutions-1.0-1.noarch.rpm
+RUN rpm -Uvh erlang-solutions-1.0-1.noarch.rpm
+
+RUN yum install -y esl-erlang
+RUN mkdir /opt/elixir
+
+RUN git clone https://github.com/elixir-lang/elixir.git /opt/elixir
+
+ENV ELIXIR_VERSION 1.1.1
+WORKDIR /opt/elixir
+RUN git checkout refs/tags/v${ELIXIR_VERSION}
+RUN make clean test
+
+RUN ln -s /opt/elixir/bin/iex /usr/local/bin/iex
+RUN ln -s /opt/elixir/bin/mix /usr/local/bin/mix
+RUN ln -s /opt/elixir/bin/elixir /usr/local/bin/elixir
+RUN ln -s /opt/elixir/bin/elixirc /usr/local/bin/elixirc
+
+RUN yum install -y nodejs
+RUN yum install -y npm
+
+WORKDIR /root
